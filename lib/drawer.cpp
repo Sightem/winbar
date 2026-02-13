@@ -132,8 +132,19 @@ void draw_gl_texture(AppClient *client, gl_surface *gl_surf, cairo_surface_t *su
         
         tex_target->texture->draw(x, y, w, h);
     } else {
-        cairo_set_source_surface(client->cr, surf, x, y);
+        double source_w = cairo_image_surface_get_width(surf);
+        double source_h = cairo_image_surface_get_height(surf);
+        double target_w = w == 0 ? source_w : w;
+        double target_h = h == 0 ? source_h : h;
+
+        cairo_save(client->cr);
+        cairo_translate(client->cr, x, y);
+        if (source_w > 0 && source_h > 0 && (target_w != source_w || target_h != source_h)) {
+            cairo_scale(client->cr, target_w / source_w, target_h / source_h);
+        }
+        cairo_set_source_surface(client->cr, surf, 0, 0);
         cairo_paint(client->cr);
+        cairo_restore(client->cr);
     }
 }
 
@@ -234,7 +245,6 @@ void draw_pop_temp(AppClient *client) {
         client->ctx->buffer->pop();
     }
 }
-
 
 
 

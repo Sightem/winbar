@@ -1140,7 +1140,11 @@ void load_and_paint(App *app, AppClient *client, std::string path, int size, int
     o->path = path;
     o->size = size;
     o->surface = accelerated_surface(app, client, o->size, o->size);
-    o->success = paint_surface_with_image(o->surface, as_resource_path(o->path), o->size, nullptr);
+    std::string source_path = o->path;
+    if (source_path.empty() || source_path[0] != '/') {
+        source_path = as_resource_path(source_path);
+    }
+    o->success = paint_surface_with_image(o->surface, source_path, o->size, nullptr);
     once.push_back(o);
 
     paint_once(app, client, o, size, x, y);
@@ -1150,5 +1154,4 @@ void load_and_paint(App *app, AppClient *client, std::string path, int size, Bou
     load_and_paint(app, client, path, size, position.x + position.w * .5  - size * .5,
                    position.y + position.h * .5  - size * .5);
 }
-
 
